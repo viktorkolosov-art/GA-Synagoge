@@ -59,30 +59,6 @@ h1 {
   flex: 1;
 }
 
-.content {
-  background: transparent !important;
-  padding: 0;
-  border-radius: 0;
-  line-height: 1.6;
-  font-size: 18px;
-  color: #FFF !important;
-}
-
-.content p {
-  margin-bottom: 15px;
-  color: #FFF !important;
-}
-
-.content p:last-child {
-  margin-bottom: 0;
-}
-
-.year {
-  font-weight: bold;
-  color: #AAA !important;
-  margin-top: 10px;
-}
-
 button {
   background: #555;
   border: none;
@@ -110,6 +86,42 @@ button svg {
   height: 28px;
 }
 
+/* ПОЛОСА С КАРТИНКОЙ ПОД ЗАГОЛОВКОМ */
+.image-strip {
+  width: 100%;
+  height: 40vh;                 /* высота полосы, можно менять */
+  margin-bottom: 20px;
+  background-image: url("fragment Sinagogue.png");
+  background-repeat: no-repeat;
+  background-size: cover;       /* заполняет весь экран по ширине */
+  background-position: right center; /* смещаем композицию вправо */
+}
+
+/* ТЕКСТ */
+.content {
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  line-height: 1.6;
+  font-size: 18px;
+  color: #FFF !important;
+}
+
+.content p {
+  margin-bottom: 15px;
+  color: #FFF !important;
+}
+
+.content p:last-child {
+  margin-bottom: 0;
+}
+
+.year {
+  font-weight: bold;
+  color: #AAA !important;
+  margin-top: 10px;
+}
+
 @media (max-width: 600px) {
   body {
     padding: 10px;
@@ -126,6 +138,9 @@ button svg {
   }
   button {
     align-self: flex-end;
+  }
+  .image-strip {
+    height: 30vh; /* на телефоне чуть ниже, чтобы текст влез */
   }
 }
 </style>
@@ -149,6 +164,9 @@ button svg {
       </svg>
     </button>
   </div>
+
+  <!-- КАРТИНКА ПОД ЗАГОЛОВКОМ -->
+  <div class="image-strip"></div>
 
   <div class="content">
     <p class="year">1941–1942</p>
@@ -187,7 +205,6 @@ function initAudio() {
     masterGain.gain.value = whaleSound.mute ? 0 : 0.5;
     masterGain.connect(audioCtx.destination);
 
-    // Створюємо AudioListener для позиціонування звуків
     audioCtx.listener.positionX.value = 0;
     audioCtx.listener.positionY.value = 0;
     audioCtx.listener.positionZ.value = 0;
@@ -203,7 +220,6 @@ function initAudio() {
   }
 }
 
-// Низький голос кита (вже існуючий)
 function makeWhaleCall(type) {
   if (!audioCtx || !whaleSound.running) return;
 
@@ -214,13 +230,12 @@ function makeWhaleCall(type) {
   const osc2 = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   const filter = audioCtx.createBiquadFilter();
-  const panner = audioCtx.createPanner(); // Створюємо PannerNode
+  const panner = audioCtx.createPanner();
 
-  // Рандомна початкова позиція для низьких звуків
-  const startX = Math.random() * 2 - 1; // Від -1 (ліворуч) до 1 (праворуч)
+  const startX = Math.random() * 2 - 1;
   panner.positionX.value = startX;
   panner.positionY.value = 0;
-  panner.positionZ.value = -0.5; // Трохи позаду слухача
+  panner.positionZ.value = -0.5;
 
   filter.type = 'lowpass';
   filter.frequency.value = 500;
@@ -262,20 +277,18 @@ function makeWhaleCall(type) {
   osc1.connect(filter);
   osc2.connect(filter);
   filter.connect(gain);
-  gain.connect(panner); // Підключаємо до PannerNode
-  panner.connect(masterGain); // PannerNode до masterGain
+  gain.connect(panner);
+  panner.connect(masterGain);
   
   osc1.start(now);
   osc2.start(now);
   osc1.stop(now + duration + 0.1);
   osc2.stop(now + duration + 0.1);
 
-  // Рух звуку
-  const endX = -startX; // Переміщуємо в протилежну сторону
+  const endX = -startX;
   panner.positionX.linearRampToValueAtTime(endX, now + duration);
 }
 
-// Високий голос кита (безперервний з пульсацією) - тихіше на 25%
 function startContinuousHighWhale() {
   if (!audioCtx || !whaleSound.running) return;
 
@@ -286,11 +299,11 @@ function startContinuousHighWhale() {
   const filter = audioCtx.createBiquadFilter();
   const reverb = audioCtx.createDelay();
   const reverbGain = audioCtx.createGain();
-  const panner = audioCtx.createPanner(); // Створюємо PannerNode для високих звуків
+  const panner = audioCtx.createPanner();
 
-  panner.positionX.value = 0; // Починаємо з центру
+  panner.positionX.value = 0;
   panner.positionY.value = 0;
-  panner.positionZ.value = -0.2; // Трохи ближче
+  panner.positionZ.value = -0.2;
 
   reverb.delayTime.value = 0.3;
   reverbGain.gain.value = 0.4;
@@ -308,9 +321,8 @@ function startContinuousHighWhale() {
   osc2.frequency.value = baseFreq + 50;
   osc3.frequency.value = baseFreq - 30;
   
-  // Безперервна пульсація гучності (зменшено на 25%)
   const now = audioCtx.currentTime;
-  gain.gain.setValueAtTime(0.0375, now); // Було 0.05, тепер 0.0375
+  gain.gain.setValueAtTime(0.0375, now);
   
   function pulsate(startTime) {
     if (!whaleSound.running) return;
@@ -320,10 +332,9 @@ function startContinuousHighWhale() {
     
     gain.gain.cancelScheduledValues(t);
     gain.gain.setValueAtTime(gain.gain.value, t);
-    gain.gain.linearRampToValueAtTime(0.075, t + cycleDuration * 0.3); // Було 0.10, тепер 0.075
-    gain.gain.linearRampToValueAtTime(0.0375, t + cycleDuration); // Було 0.05, тепер 0.0375
+    gain.gain.linearRampToValueAtTime(0.075, t + cycleDuration * 0.3);
+    gain.gain.linearRampToValueAtTime(0.0375, t + cycleDuration);
     
-    // Модуляція частоти
     const freqShift = 200 + Math.random() * 300;
     osc1.frequency.cancelScheduledValues(t);
     osc1.frequency.setValueAtTime(osc1.frequency.value, t);
@@ -337,8 +348,7 @@ function startContinuousHighWhale() {
     
     setTimeout(() => pulsate(audioCtx.currentTime), cycleDuration * 1000);
 
-    // Рух звуку для високих китів
-    const targetX = Math.random() * 2 - 1; // Випадкова позиція
+    const targetX = Math.random() * 2 - 1;
     panner.positionX.linearRampToValueAtTime(targetX, t + cycleDuration);
   }
   
@@ -346,8 +356,8 @@ function startContinuousHighWhale() {
   osc2.connect(filter);
   osc3.connect(filter);
   filter.connect(gain);
-  gain.connect(panner); // Підключаємо до PannerNode
-  panner.connect(masterGain); // PannerNode до masterGain
+  gain.connect(panner);
+  panner.connect(masterGain);
   gain.connect(reverb);
   reverb.connect(reverbGain);
   reverbGain.connect(masterGain);
@@ -361,38 +371,37 @@ function startContinuousHighWhale() {
   pulsate(now);
 }
 
-// Дуже високий голос - хаотична, переривчаста трель кита (тихіше на 20%)
 function makeTrillSound() {
   if (!audioCtx || !whaleSound.running) return;
 
   const now = audioCtx.currentTime;
-  const baseDuration = 1.5 + Math.random() * 1.5; // Коротка, хаотична тривалість
-  const numNotes = 5 + Math.floor(Math.random() * 5); // Менше нот
-  const overallGain = 0.028; // Зменшено на 20% від 0.035
+  const baseDuration = 1.5 + Math.random() * 1.5;
+  const numNotes = 5 + Math.floor(Math.random() * 5);
+  const overallGain = 0.028;
   
   for (let i = 0; i < numNotes; i++) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     const filter = audioCtx.createBiquadFilter();
-    const panner = audioCtx.createPanner(); // Створюємо PannerNode для трелей
+    const panner = audioCtx.createPanner();
 
-    const startX = Math.random() * 2 - 1; // Рандомна початкова позиція
+    const startX = Math.random() * 2 - 1;
     panner.positionX.value = startX;
     panner.positionY.value = 0;
-    panner.positionZ.value = -0.1; // Ближче до слухача
+    panner.positionZ.value = -0.1;
     
     filter.type = 'bandpass';
     filter.frequency.value = 2000 + Math.random() * 1000;
-    filter.Q.value = 3.0; // Трохи менша добротність для меншої виразності
+    filter.Q.value = 3.0;
     
     osc.type = 'sine';
     
-    const noteStart = now + (i / numNotes) * baseDuration + Math.random() * 0.2; // Хаотичний старт
-    const noteDuration = 0.1 + Math.random() * 0.2; // Коротка тривалість ноти
+    const noteStart = now + (i / numNotes) * baseDuration + Math.random() * 0.2;
+    const noteDuration = 0.1 + Math.random() * 0.2;
     const freq = 1800 + Math.random() * 1200;
     
     osc.frequency.setValueAtTime(freq, noteStart);
-    osc.frequency.linearRampToValueAtTime(freq + (Math.random() * 300 - 150), noteStart + noteDuration); // Менший діапазон модуляції
+    osc.frequency.linearRampToValueAtTime(freq + (Math.random() * 300 - 150), noteStart + noteDuration);
     
     gain.gain.setValueAtTime(0.0001, noteStart);
     gain.gain.exponentialRampToValueAtTime(overallGain, noteStart + noteDuration * 0.3);
@@ -400,37 +409,29 @@ function makeTrillSound() {
     
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(panner); // Підключаємо до PannerNode
-    panner.connect(masterGain); // PannerNode до masterGain
+    gain.connect(panner);
+    panner.connect(masterGain);
     
     osc.start(noteStart);
     osc.stop(noteStart + noteDuration);
 
-    // Рух звуку для трелей
-    const endX = -startX; // Переміщуємо в протилежну сторону
+    const endX = -startX;
     panner.positionX.linearRampToValueAtTime(endX, noteStart + noteDuration);
   }
 }
 
 function scheduleWhaleSound() {
   if (!whaleSound.running) return;
-  
   const callType = Math.random() > 0.35 ? 'long' : 'short';
   makeWhaleCall(callType);
-  
   const nextDelay = 8000 + Math.random() * 10000;
-  
   whaleSound.timeout = setTimeout(scheduleWhaleSound, nextDelay);
 }
 
 function scheduleTrillSound() {
   if (!whaleSound.running) return;
-  
   makeTrillSound();
-  
-  // Хаотичні перерви
-  const nextDelay = 5000 + Math.random() * 15000; // Збережено хаотичні перерви
-  
+  const nextDelay = 5000 + Math.random() * 15000;
   whaleSound.trillTimeout = setTimeout(scheduleTrillSound, nextDelay);
 }
 
